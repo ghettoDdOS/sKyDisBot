@@ -1,5 +1,6 @@
 import { join, resolve } from 'path';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import type { Cookie } from '@distube/ytdl-core';
 
 interface Config {
     DIS_TOKEN: string
@@ -9,7 +10,7 @@ interface Config {
     TEST_GUILD_ID: string
     COMMAND_PREFIX: string
     WEB_USER_AGENT: string
-    YT_CUSTOM_COOKIE: string
+    YT_CUSTOM_COOKIE: Cookie[]
     YANDEX_MUSIC_TOKEN: string
 }
 
@@ -22,7 +23,7 @@ const DefaultConfig: Config = {
     TEST_GUILD_ID: PLACEHOLDER,
     COMMAND_PREFIX: '!',
     WEB_USER_AGENT: PLACEHOLDER,
-    YT_CUSTOM_COOKIE: '',
+    YT_CUSTOM_COOKIE: [],
     YANDEX_MUSIC_TOKEN: '',
 };
 const configPath = resolve(process.env.CONFIG_PATH || join(process.cwd(), 'config.json'));

@@ -1,6 +1,6 @@
 import Logger from 'log4js';
 import { PassThrough, Readable } from 'stream';
-import ytdl from 'ytdl-core';
+import ytdl from '@distube/ytdl-core';
 import { BaseService } from '../Interface/ServiceManagerInterface.js';
 import RequestParamCollection from '../Model/General/RequestParamCollection.js';
 import PlaylistItemListResponse from '../Model/YouTube/PlaylistItemListResponse.js';
@@ -92,14 +92,8 @@ class YouTubeService extends BaseService {
         let finished = false;
         let validTrack = false;
         const watchIt = (begin = 0, retry = 0) => new Promise<void>((resolve) => {
-            const opts: ytdl.downloadOptions = { filter: 'audioonly' };
-            if (config.get().YT_CUSTOM_COOKIE) {
-                opts.requestOptions = {
-                    headers: {
-                        cookie: config.get().YT_CUSTOM_COOKIE
-                    }
-                };
-            }
+            const agent = ytdl.createAgent(config.get().YT_CUSTOM_COOKIE);
+            const opts: ytdl.downloadOptions = { filter: 'audioonly', agent };
             const src = ytdl(id, opts);
             let len = 0;
             src.on('data', (chunk: Uint8Array) => {
