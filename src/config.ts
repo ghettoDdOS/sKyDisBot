@@ -5,6 +5,7 @@ import type { Cookie } from '@distube/ytdl-core';
 interface Config {
     DIS_TOKEN: string
     LOG_CONFIG: string
+    DB_FILE: string
     YT_DATA_TOKEN: string
     BOT_CLIENT_ID: string
     TEST_GUILD_ID: string

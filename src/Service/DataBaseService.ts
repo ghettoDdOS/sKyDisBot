@@ -6,6 +6,7 @@ import { BaseService } from '../Interface/ServiceManagerInterface.js';
 import { BaseCommand } from '../Model/CommandParser/index.js';
 import CommandParserService from './CommandParserService.js';
 import { GlobalServiceManager } from './ServiceManager.js';
+import config from '../config.js';
 
 class DataBaseService extends BaseService {
 
@@ -224,7 +225,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
   host: 'localhost',
   dialect: 'sqlite',
   logging: false,
-  storage: 'db.sqlite',
+  storage: config.get().DB_FILE,
 });
 
 
