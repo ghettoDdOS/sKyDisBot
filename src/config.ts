@@ -19,6 +19,7 @@ const PLACEHOLDER = '[change_me]';
 const DefaultConfig: Config = {
     DIS_TOKEN: PLACEHOLDER,
     LOG_CONFIG: 'log4js.default.json',
+    DB_FILE: 'db.sqlite',
     YT_DATA_TOKEN: PLACEHOLDER,
     BOT_CLIENT_ID: PLACEHOLDER,
     TEST_GUILD_ID: PLACEHOLDER,
@@ -60,7 +61,7 @@ function checkConfig(): void {
         }
     }
     catch (e) {
-        throw new Error(`Config check failed, inner message: ${e}`);        
+        throw new Error(`Config check failed, inner message: ${e}`);
     }
 }
 
