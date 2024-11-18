@@ -12,6 +12,7 @@ import Playlist from '../Model/Yandex/Playlist.js';
 import Album from '../Model/Yandex/Album.js';
 import { escape } from 'querystring';
 import SearchResult from '../Model/Yandex/SearchResult.js';
+import https from 'node:https';
 
 // https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d
 const YM_API_HOST = 'https://api.music.yandex.net';
@@ -21,7 +22,7 @@ class YandexService extends BaseService {
 
     private token: string;
     private logger: Logger.Logger;
-    
+
     constructor(accessToken: string) {
         super();
         this.token = accessToken;
@@ -114,20 +115,53 @@ class YandexService extends BaseService {
     }
 
     private async ApiRequest(method: string, handle: string, body?: BodyInit): Promise<ApiResponse> {
-        const url = `${YM_API_HOST}/${handle}`;
-        const resp = await fetch(url, {
+        const opts: https.RequestOptions = {
+            hostname: YM_API_HOST,
+            port: '443',
+            path: `/${handle}`,
             method: method,
             headers: {
-                'Authorization': `OAuth ${this.token}`,
-                'Accept-Language': 'ru',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            }, 
-            body: body,
+                authorization: `OAuth ${this.token}`,
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
+            }
+        };
+        let bodyData: string = undefined;
+        if (body) {
+            if (body instanceof URLSearchParams) {
+                bodyData = body.toString();
+                opts.headers['content-type'] = 'application/x-www-form-urlencoded';
+            } else {
+                throw new Error('Not supported request body');
+            }
+            opts.headers['content-length'] = bodyData.length;
+        }
+        const data = await new Promise<unknown>((resolve, reject) => {
+            const req = https.request(opts, (res) => {
+                if (res.statusCode < 200 || res.statusCode > 299) {
+                    reject(new Error(`API returned: ${res.statusCode} ${res.statusMessage}`));
+                    return;
+                }
+                const chunks = [];
+
+                res.on('data', (d) => {
+                    chunks.push(d);
+                });
+
+                res.on('end', () => {
+                    const fulldata = Buffer.concat(chunks);
+                    const j = JSON.parse(fulldata.toString());
+                    resolve(j);
+                });
+
+                res.on('error', (err) => reject(err));
+            });
+
+            if (bodyData) {
+                req.write(bodyData);
+            }
+            req.end();
         });
 
-        if (!resp.ok) throw new Error(`Failed to ${method} ${handle}: ${resp.status} ${resp.statusText}`);
-        const data = await resp.json();
         return new ApiResponse(data);
     }
 }
