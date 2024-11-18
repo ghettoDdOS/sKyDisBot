@@ -15,7 +15,7 @@ import SearchResult from '../Model/Yandex/SearchResult.js';
 import https from 'node:https';
 
 // https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d
-const YM_API_HOST = 'https://api.music.yandex.net';
+const YM_API_HOST = 'api.music.yandex.net';
 
 class YandexService extends BaseService {
     private wl: WebLoader;
